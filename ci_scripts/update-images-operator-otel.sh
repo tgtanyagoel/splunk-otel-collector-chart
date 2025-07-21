@@ -36,10 +36,10 @@ debug "Operator App Version: $APP_VERSION"
 
 # ---- Fetch Docker Repository Information ----
 # Fetch the code containing information about what instrumentation language uses what docker repository.
-MAIN_URL="https://raw.githubusercontent.com/open-telemetry/opentelemetry-operator/v$APP_VERSION/main.go"
+MAIN_URL="https://raw.githubusercontent.com/open-telemetry/opentelemetry-operator/v$APP_VERSION/internal/config/config.go"
 debug "Fetching: $MAIN_URL"
 curl -s "$MAIN_URL" > "$TEMP_MAIN_FILE"
-debug "Extracted main.go of the operator:"
+debug "Extracted config.go of the operator to get default image repository information:"
 debug "$TEMP_MAIN_FILE"
 
 # ---- Fetch Version Mapping ----
@@ -78,8 +78,13 @@ while IFS='=' read -r IMAGE_KEY VERSION; do
             continue
         fi
         setd "TAG_UPSTREAM" "${VERSION}"
-        # Find the proper docker repository for the instrumentation library by scraping the main.go file of the operator
-        INST_LIB_REPO=$(grep "auto-instrumentation-${INST_LIB_NAME_RAW}-image" "$TEMP_MAIN_FILE" | grep -o 'ghcr.io/[a-zA-Z0-9_-]*/[a-zA-Z0-9_-]*/autoinstrumentation-[a-zA-Z0-9_-]*' | sort | uniq )
+        # Find the proper docker repository for the instrumentation library by scraping the config.go file of the operator
+        INST_LIB_FIELD="AutoInstrumentation$(tr '[:lower:]' '[:upper:]' <<< "${INST_LIB_NAME_RAW:0:1}")${INST_LIB_NAME_RAW:1}Image"
+        # Special case for apache-httpd (convert to ApacheHttpd)
+        if [[ "${INST_LIB_NAME_RAW}" == "apache-httpd" ]]; then
+            INST_LIB_FIELD="AutoInstrumentationApacheHttpdImage"
+        fi
+        INST_LIB_REPO=$(grep "${INST_LIB_FIELD}" "$TEMP_MAIN_FILE" | grep -o 'ghcr.io/[a-zA-Z0-9_-]*/[a-zA-Z0-9_-]*/autoinstrumentation-[a-zA-Z0-9_-]*' | sort | uniq )
         if [ -n "$INST_LIB_REPO" ]; then
             # Set the REPOSITORY_UPSTREAM variable
             setd "REPOSITORY_UPSTREAM" "$INST_LIB_REPO"

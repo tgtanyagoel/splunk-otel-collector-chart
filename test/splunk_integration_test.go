@@ -159,7 +159,7 @@ func testVerifyMetricPodAnnotations(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			addPodAnnotation(t, client, podName, tt.annotationIndexValue, tt.annotationSourcetypeValue)
+			addPodAnnotation(t, client, podName, namespace, tt.annotationIndexValue, tt.annotationSourcetypeValue)
 			time.Sleep(20 * time.Second)
 
 			index := defaultIndex
@@ -230,8 +230,8 @@ func addNamespaceAnnotation(t *testing.T, clientset *kubernetes.Clientset, names
 	fmt.Printf("Annotation added to namespace_name %s\n", namespace_name)
 }
 
-func addPodAnnotation(t *testing.T, clientset *kubernetes.Clientset, pod_name string, annotationIndex string, annotationSourcetype string) {
-	pod, err := client.CoreV1().Pods("namespace").Get(context.TODO(), pod_name, metav1.GetOptions{})
+func addPodAnnotation(t *testing.T, clientset *kubernetes.Clientset, pod_name string, namespace string, annotationIndex string, annotationSourcetype string) {
+	pod, err := client.CoreV1().Pods(namespace).Get(context.TODO(), pod_name, metav1.GetOptions{})
 	require.NoError(t, err)
 	if pod.Annotations == nil {
 		pod.Annotations = make(map[string]string)

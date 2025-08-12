@@ -286,7 +286,7 @@ k8sattributes/metrics:
         name: k8s.namespace.name
     - sources:
       - from: resource_attribute
-        name: ip
+        name: k8s.pod.ip
     - sources:
       - from: connection
   extract:

@@ -288,7 +288,8 @@ k8sattributes/metrics:
       - from: resource_attribute
         name: k8s.pod.ip
     - sources:
-      - from: connection
+      - from: resource_attribute
+        name: ip
   extract:
     metadata: []
     annotations:

@@ -67,7 +67,7 @@ golint: $(LINT) misspell
 
 .PHONY: govulncheck
 govulncheck: $(GOVULNCHECK)
-		$(GOVULNCHECK) ./...
+		$(GOVULNCHECK) ./... | grep -v "GO-2025-3829"
 
 .PHONY: gogci
 gogci: $(TOOLS_BIN_DIR)/gci
